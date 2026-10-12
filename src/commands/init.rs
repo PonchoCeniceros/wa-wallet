@@ -5,17 +5,12 @@ use std::error::Error;
 use crate::application::basics::*;
 use crate::domain::wallet::Wallet;
 
-/**
- * El tipo derivado de Args contiene los
- * argumentos concedidos para este comando,
- * junto a configuraciones extras
- *
- */
+/// Inicializar la Wallet con una contraseña maestra
 #[derive(Args)]
 pub struct InitArgs {}
 
 /**
- * la funcion run es la ejecucion del comando en si
+ * Inicializar la Wallet con una contraseña maestra
  *
  */
 pub fn run(_args: InitArgs) -> Result<(), Box<dyn Error>> {
