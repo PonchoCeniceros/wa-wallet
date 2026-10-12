@@ -1,8 +1,9 @@
 use clap::Args;
+use dialoguer::{Password, theme::ColorfulTheme};
 use std::error::Error;
 
 use crate::application::basics::*;
-use crate::domain::wallet::{Entry, Wallet};
+use crate::domain::wallet::Wallet;
 
 /**
  * El tipo derivado de Args contiene los
@@ -11,28 +12,25 @@ use crate::domain::wallet::{Entry, Wallet};
  *
  */
 #[derive(Args)]
-pub struct InitArgs {
-    #[arg(short = 'p', long)]
-    password: Option<String>,
-}
+pub struct InitArgs {}
 
 /**
  * la funcion run es la ejecucion del comando en si
  *
  */
-pub fn run(args: InitArgs) -> Result<(), Box<dyn Error>> {
-    let master_psw = args.password.unwrap_or("".to_string());
+pub fn run(_args: InitArgs) -> Result<(), Box<dyn Error>> {
+    // obtener el password a traves del usuario
+    let master_psw = Password::with_theme(&ColorfulTheme::default())
+        .with_prompt("Contraseña maestra")
+        .with_confirmation(
+            "Confirma la contraseña maestra",
+            "La contraseña no coincide",
+        )
+        .interact()
+        .map_err(|_| "Error al capturar la contraseña")?;
 
-    // let wallet = Wallet { entries: vec![] };
-    let wallet = Wallet {
-        entries: vec![Entry {
-            id: "0001".to_string(),
-            title: "demo".to_string(),
-            username: "user".to_string(),
-            password: "pswd".to_string(),
-        }],
-    };
-
+    // crear una wallet limpia
+    let wallet = Wallet { entries: vec![] };
     init_wallet(master_psw, wallet)?;
     Ok(())
 }

@@ -3,9 +3,28 @@ use aes_gcm::{
     aead::{Aead, KeyInit},
 };
 use argon2::Argon2;
+use directories::ProjectDirs;
 use rand::*;
+use std::path::PathBuf;
 
 use crate::domain::wallet::Wallet;
+
+const WALLET_FILE: &str = "wallet.db";
+const WALLET_ENV: &str = "WW_WALLET_PATH";
+
+/**
+ * Resolver la ruta de la wallet
+ * prioridad: variable de entorno WW_WALLET_PATH > directorio de datos del SO
+ */
+fn wallet_path() -> Result<PathBuf, String> {
+    if let Some(custom) = std::env::var_os(WALLET_ENV) {
+        return Ok(PathBuf::from(custom));
+    }
+
+    let dirs = ProjectDirs::from("", "", "ww")
+        .ok_or("No se pudo determinar el directorio home del usuario")?;
+    Ok(dirs.data_dir().join(WALLET_FILE))
+}
 
 /**
  * Crear por primera vez la instancia de mi Wallet
@@ -41,8 +60,14 @@ pub fn init_wallet(master_psw: String, base_wallet: Wallet) -> Result<(), String
     file_content.extend_from_slice(&nonce);
     file_content.extend_from_slice(&ciphertext);
 
-    std::fs::write("wallet.db", file_content)
-        .map_err(|_| "Error al escribir el archivo en disco".to_string())?;
+    let path = wallet_path()?;
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|_| format!("No se pudo crear el directorio {}", parent.display()))?;
+    }
+
+    std::fs::write(&path, file_content)
+        .map_err(|_| format!("Error al escribir la wallet en {}", path.display()))?;
 
     Ok(())
 }
@@ -53,8 +78,13 @@ pub fn init_wallet(master_psw: String, base_wallet: Wallet) -> Result<(), String
  */
 pub fn load_wallet(master_psw: String) -> Result<Wallet, String> {
     // Leer el archivo binario completo
-    let file_bytes = std::fs::read("wallet.db")
-        .map_err(|_| "No se pudo encontrar o abrir el archivo wallet.db".to_string())?;
+    let path = wallet_path()?;
+    let file_bytes = std::fs::read(&path).map_err(|_| {
+        format!(
+            "No se pudo encontrar o abrir la wallet en {}",
+            path.display()
+        )
+    })?;
 
     // Validar tamaño mínimo (16 bytes Salt + 12 bytes Nonce)
     if file_bytes.len() < 28 {
@@ -92,13 +122,18 @@ pub fn load_wallet(master_psw: String) -> Result<Wallet, String> {
  * Persistir los cambios de la Wallet en disco
  *
  */
-pub fn _save_wallet(wallet: Wallet, master_psw: String) -> Result<(), String> {
+pub fn save_wallet(wallet: Wallet, master_psw: String) -> Result<(), String> {
     // Leer el archivo existente para extraer el Salt original (primeros 16 bytes)
-    let file_bytes = std::fs::read("wallet.db")
-        .map_err(|_| "No se pudo acceder a wallet.db para guardar los cambios".to_string())?;
+    let path = wallet_path()?;
+    let file_bytes = std::fs::read(&path).map_err(|_| {
+        format!(
+            "No se pudo acceder a la wallet en {} para guardar los cambios",
+            path.display()
+        )
+    })?;
 
     if file_bytes.len() < 16 {
-        return Err("El archivo wallet.db está corrupto".to_string());
+        return Err("El archivo de la wallet está corrupto".to_string());
     }
 
     let salt = &file_bytes[0..16];
@@ -133,8 +168,8 @@ pub fn _save_wallet(wallet: Wallet, master_psw: String) -> Result<(), String> {
     buffer.extend_from_slice(&ciphertext);
 
     // Sobrescribir en disco
-    std::fs::write("wallet.db", buffer)
-        .map_err(|_| "Error al escribir la wallet en disco".to_string())?;
+    std::fs::write(&path, buffer)
+        .map_err(|_| format!("Error al escribir la wallet en {}", path.display()))?;
 
     Ok(())
 }
