@@ -27,7 +27,7 @@ enum Commands {
     Init(commands::init::InitArgs),
     Add(commands::add::AddArgs),
     Read(commands::read::ReadArgs),
-    // Drop(commands::drop::DropArgs),
+    Drop(commands::drop::DropArgs),
 }
 
 /**
@@ -44,6 +44,7 @@ fn main() {
         Commands::Init(args) => commands::init::run(args),
         Commands::Add(args) => commands::add::run(args),
         Commands::Read(args) => commands::read::run(args),
+        Commands::Drop(args) => commands::drop::run(args),
     };
 
     if let Err(e) = result {
