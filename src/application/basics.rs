@@ -92,7 +92,7 @@ pub fn load_wallet(master_psw: String) -> Result<Wallet, String> {
  * Persistir los cambios de la Wallet en disco
  *
  */
-pub fn _save_wallet(wallet: Wallet, master_psw: String) -> Result<(), String> {
+pub fn save_wallet(wallet: Wallet, master_psw: String) -> Result<(), String> {
     // Leer el archivo existente para extraer el Salt original (primeros 16 bytes)
     let file_bytes = std::fs::read("wallet.db")
         .map_err(|_| "No se pudo acceder a wallet.db para guardar los cambios".to_string())?;

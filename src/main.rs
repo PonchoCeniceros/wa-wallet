@@ -28,7 +28,7 @@ enum Commands {
     Init(commands::init::InitArgs),
     Load(commands::load::LoadArgs),
     // List(commands::list::ListArgs),
-    // Add(commands::add::AddArgs),
+    Add(commands::add::AddArgs),
     // Read(commands::read::ReadArgs),
     // Drop(commands::drop::DropArgs),
 }
@@ -61,6 +61,7 @@ fn main() {
         Commands::Greet(args) => commands::greet::run(args),
         Commands::Init(args) => commands::init::run(args),
         Commands::Load(args) => commands::load::run(args),
+        Commands::Add(args) => commands::add::run(args),
     };
 
     if let Err(e) = result {
