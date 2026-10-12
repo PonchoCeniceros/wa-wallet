@@ -3,17 +3,12 @@ use std::error::Error;
 
 use crate::application::operations::*;
 
-/**
- * El tipo derivado de Args contiene los
- * argumentos concedidos para este comando,
- * junto a configuraciones extras
- *
- */
+/// Consultar una entrada en la Wallet
 #[derive(Args)]
 pub struct ReadArgs {}
 
 /**
- * la funcion run es la ejecucion del comando en si
+ * Consultar una entrada en la Wallet
  *
  */
 pub fn run(_args: ReadArgs) -> Result<(), Box<dyn Error>> {

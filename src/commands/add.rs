@@ -4,18 +4,12 @@ use std::error::Error;
 use crate::application::basics::*;
 use crate::application::operations::*;
 
-/**
- * El tipo derivado de Args contiene los
- * argumentos concedidos para este comando,
- * junto a configuraciones extras
- *
- */
+/// Realizar una entrada a la Wallet
 #[derive(Args)]
 pub struct AddArgs {}
 
 /**
- * la funcion run es la ejecucion del comando en si
- *
+ * Realizar una entrada a la Wallet
  */
 pub fn run(_args: AddArgs) -> Result<(), Box<dyn Error>> {
     let mut master_psw = String::new();

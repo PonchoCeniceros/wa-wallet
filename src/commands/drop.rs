@@ -1,17 +1,12 @@
 use clap::Args;
 use std::error::Error;
 
-/**
- * El tipo derivado de Args contiene los
- * argumentos concedidos para este comando,
- * junto a configuraciones extras
- *
- */
+/// Retirar una entrada a la Wallet
 #[derive(Args)]
 pub struct DropArgs {}
 
 /**
- * la funcion run es la ejecucion del comando en si
+ * Retirar una entrada a la Wallet
  *
  */
 pub fn run(_args: DropArgs) -> Result<(), Box<dyn Error>> {
